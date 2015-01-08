@@ -25,6 +25,7 @@ public class MainActivity extends ActionBarActivity {
 	private Uri imageUri;
 	private static int TAKE_PICTURE = 1;
 
+	/*
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -35,14 +36,19 @@ public class MainActivity extends ActionBarActivity {
                 Log.i("~~~~~~~", "Load failed!");
             }
         }
-    };
+    };*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        if(!OpenCVLoader.initDebug()){
+        	
+        }
+        
         Button camera = (Button) findViewById(R.id.camera);
         camera.setOnClickListener(cameraListener);
+        
     }
 	@Override
 	protected void onResume(){
@@ -50,10 +56,11 @@ public class MainActivity extends ActionBarActivity {
 	    super.onResume();
 	    
 	    Log.i("~~~~", "Trying to load OpenCV library");
+	    /*
 	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_4, this, mLoaderCallback))
 	    {
 	        Log.e("~~~~", "Cannot connect to OpenCV Manager");
-	    }
+	    }*/
 	      
 	}
     private OnClickListener cameraListener = new OnClickListener(){

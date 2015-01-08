@@ -43,12 +43,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-
+ 
 public class adjustPic extends Activity implements OnTouchListener{
 	
 	final int dst_width = 1000;
     final int dst_height = 600;
-    
+     
 	Button confirm, flip;
 	ImageView LT, LB, RT, RB;
 	ImageView imageView, imageViewResult;
@@ -62,13 +62,13 @@ public class adjustPic extends Activity implements OnTouchListener{
 	private Point new_rightTop = new Point(0,0);
 	private Point new_rightBot = new Point(0,0);
 	Bitmap processBitmap, resultBitmap;
-	
+	  
 	double screenWidth=0, screenHeight=0, pictureRatio=0.6;
-	
+	  
 	float x,y = 0.0f;
 	boolean moving=false;
 	
-	
+	 
 	RelativeLayout rl;
 	
     
