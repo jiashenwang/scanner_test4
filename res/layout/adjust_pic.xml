@@ -1,0 +1,94 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">	
+	<LinearLayout 
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent" 
+		    android:orientation="vertical">
+	
+		    <ProgressBar
+			   android:id="@+id/progressBar"
+			   style="?android:attr/progressBarStyleLarge"
+			   android:layout_width="wrap_content"
+			   android:layout_height="wrap_content"
+			   android:layout_centerHorizontal="true" />
+		    
+		    <RelativeLayout
+		        android:id="@+id/relative_layout"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        >
+				<ImageView
+				    android:id="@+id/image"
+				    android:layout_width="wrap_content" 
+				    android:layout_height="wrap_content"
+				    android:visibility="gone"
+				    />
+			
+				
+				
+				
+				<ImageView
+				    android:src="@drawable/circle"
+				    android:id="@+id/left_up"
+				    android:layout_width="50dip" 
+				    android:layout_height="50dip"
+				    android:visibility="gone"
+				    />
+				<ImageView
+				    android:src="@drawable/circle"
+				    android:id="@+id/right_up"
+				    android:layout_width="50dip" 
+				    android:layout_height="50dip"
+				    android:visibility="gone"
+				    />
+				<ImageView
+				    android:src="@drawable/circle"
+				    android:id="@+id/left_down"
+				    android:layout_width="50dip" 
+				    android:layout_height="50dip"
+				    android:visibility="gone"
+				    />
+				<ImageView
+				    android:src="@drawable/circle"
+				    android:id="@+id/right_down"
+				    android:layout_width="50dp" 
+				    android:layout_height="50dp"
+				    android:visibility="gone"
+				    />
+			</RelativeLayout>
+			
+		    <LinearLayout
+			    android:layout_width="wrap_content"
+			    android:layout_height="fill_parent" 
+			    android:orientation="horizontal">
+				
+				<Button
+				    android:id="@+id/confirm"
+				    android:text=" Confirm "
+				    android:layout_width="wrap_content" 
+				    android:layout_height="wrap_content"
+				    android:visibility="gone"
+				    />
+				<Button
+				    android:paddingLeft="10dip"
+				    android:id="@+id/flip"
+				    android:text=" Flip "
+				    android:layout_width="wrap_content" 
+				    android:layout_height="wrap_content"
+				    android:visibility="gone"
+				    />
+			</LinearLayout>
+			
+			
+			<ImageView
+			    android:paddingTop="10dip"
+			    android:id="@+id/image_result"
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    />
+	    
+	
+	</LinearLayout>
+	
+</ScrollView>
