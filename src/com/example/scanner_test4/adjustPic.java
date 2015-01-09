@@ -27,6 +27,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,13 +44,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
- 
+
 public class adjustPic extends Activity implements OnTouchListener{
 	
 	final int dst_width = 1000;
     final int dst_height = 600;
      
-	Button confirm, flip;
+	Button confirm, rotateLeft, rotateRight;
 	ImageView LT, LB, RT, RB;
 	ImageView imageView, imageViewResult;
 	ProgressBar pb;
@@ -62,13 +63,13 @@ public class adjustPic extends Activity implements OnTouchListener{
 	private Point new_rightTop = new Point(0,0);
 	private Point new_rightBot = new Point(0,0);
 	Bitmap processBitmap, resultBitmap;
-	  
+	
 	double screenWidth=0, screenHeight=0, pictureRatio=0.6;
-	  
+	 
 	float x,y = 0.0f;
 	boolean moving=false;
 	
-	 
+	
 	RelativeLayout rl;
 	
     
@@ -76,14 +77,15 @@ public class adjustPic extends Activity implements OnTouchListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.adjust_pic);
-         
+        
         Display display = getWindowManager().getDefaultDisplay(); 
         screenWidth = display.getWidth();  // deprecated
         screenHeight = screenWidth * pictureRatio;
         
         rl = (RelativeLayout) findViewById(R.id.relative_layout);
         confirm = (Button) findViewById(R.id.confirm);
-        flip = (Button) findViewById(R.id.flip);
+        rotateLeft = (Button) findViewById(R.id.rotate_left);
+        rotateRight = (Button) findViewById(R.id.rotate_right);
         
         imageView = (ImageView) findViewById(R.id.image);
         imageViewResult = (ImageView) findViewById(R.id.image_result);
@@ -107,7 +109,8 @@ public class adjustPic extends Activity implements OnTouchListener{
         async.execute();
         
         confirm.setOnClickListener(new ConfirmListerner());
-        flip.setOnClickListener(new FlipListerner());
+        rotateLeft.setOnClickListener(new RotateLeftListerner());
+        rotateRight.setOnClickListener(new RotateRightListerner());
 	}
 	
 
@@ -153,19 +156,46 @@ public class adjustPic extends Activity implements OnTouchListener{
             Utils.matToBitmap(dstMat, resultBitmap);
 			
             // flip is not done
-			//flip.setVisibility(View.VISIBLE);
+			rotateLeft.setVisibility(View.VISIBLE);
+			rotateRight.setVisibility(View.VISIBLE);
 			imageViewResult.setImageBitmap(resultBitmap);
 			imageViewResult.setVisibility(View.VISIBLE);
 		}
 		
 	}
-	private class FlipListerner implements OnClickListener{
+	private class RotateLeftListerner implements OnClickListener{
 
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
-			
+			resultBitmap = RotateBitmap(resultBitmap,-90);
+			if(resultBitmap.getWidth()>resultBitmap.getHeight()){
+				imageViewResult.getLayoutParams().height = (int) screenHeight;
+				imageViewResult.getLayoutParams().width = (int) screenWidth;
+			}else{
+				imageViewResult.getLayoutParams().width = (int) screenHeight;
+				imageViewResult.getLayoutParams().height = (int) screenWidth;
+			}
+			imageViewResult.setImageBitmap(resultBitmap);
 		}
+		
+	}
+	private class RotateRightListerner implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			resultBitmap = RotateBitmap(resultBitmap,90);
+			if(resultBitmap.getWidth()>resultBitmap.getHeight()){
+				imageViewResult.getLayoutParams().height = (int) screenHeight;
+				imageViewResult.getLayoutParams().width = (int) screenWidth;
+			}else{
+				imageViewResult.getLayoutParams().width = (int) screenHeight;
+				imageViewResult.getLayoutParams().height = (int) screenWidth;
+			}
+			imageViewResult.setImageBitmap(resultBitmap);
+		}
+		
 		
 	}
 	
@@ -309,15 +339,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 		    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f,
 		    		(float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
 		    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
-		    
-		    /*
-		    canvas.drawLine(RT.getX(), RT.getY()+RT.getLayoutParams().height/2,
-		    		RB.getX(), RB.getY(), paint);
-		    canvas.drawLine(RT.getX()+RB.getLayoutParams().width/2, RB.getY()+RB.getLayoutParams().height/2,
-		    		LB.getX()+LB.getLayoutParams().width/2, LB.getY()+LB.getLayoutParams().height/2, paint);
-		    canvas.drawLine(LB.getX()+LB.getLayoutParams().width/2, LB.getY()+LB.getLayoutParams().height/2,
-		    		LT.getX()+LT.getLayoutParams().width/2, LT.getY()+LT.getLayoutParams().height/2, paint);
-		    		*/
+
 		    		
 		    imageView.setImageBitmap(temp);
 		}
@@ -326,10 +348,17 @@ public class adjustPic extends Activity implements OnTouchListener{
 			Mat rgbMat = new Mat();  
 			Bitmap srcBitmap = BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
 	        		+"/scanner_test4_pic.jpg");
+			if(srcBitmap.getWidth() < srcBitmap.getHeight()){
+				Mat rotate = new Mat();
+				Utils.bitmapToMat(srcBitmap, rotate);
+				Bitmap tempBitmap = RotateBitmap(srcBitmap,90);
+				srcBitmap = null;
+				srcBitmap = tempBitmap.copy(tempBitmap.getConfig(), true);
+			}
 	        Utils.bitmapToMat(srcBitmap, rgbMat);
 			Imgproc.resize(rgbMat, rgbMat, new Size(dst_width, dst_height));
 	        processBitmap = Bitmap.createBitmap((int)dst_width,(int)dst_height, Config.RGB_565);
-	        
+	         
 	        ArrayList<List<Point>> squares = new ArrayList<List<Point>>();
 	        ArrayList<List<Point>> largest_square = new ArrayList<List<Point>>();
 	        squares = (ArrayList<List<Point>>) find_squares(rgbMat).clone();
@@ -338,16 +367,6 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        
 	        
 	        if(largest_square.size()==0){
-	        	/*
-	        	Core.circle(rgbMat, leftTop, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, rightTop, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, leftBot, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, rightBot, 60, new Scalar(0,255,255), 5);
-	        	Core.line(rgbMat, leftTop, rightTop, new Scalar(0,255,255), 5);
-	        	Core.line(rgbMat, rightTop, rightBot, new Scalar(0,255,255), 5);
-	        	Core.line(rgbMat, rightBot, leftBot, new Scalar(0,255,255), 5);
-	        	Core.line(rgbMat, leftBot, leftTop, new Scalar(0,255,255), 5);
-	        	*/
 	        	Utils.matToBitmap(rgbMat, processBitmap);
 	        }else{
 	        	double maxSum=Double.NEGATIVE_INFINITY, 
@@ -377,18 +396,6 @@ public class adjustPic extends Activity implements OnTouchListener{
 	              		rightTop.y = largest_square.get(0).get(i).y-5;
 	              	}
 	        	}        	
-						
-	        	/*
-	        	Core.circle(rgbMat, leftTop, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, rightTop, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, leftBot, 60, new Scalar(0,255,255), 5);
-	        	Core.circle(rgbMat, rightBot, 60, new Scalar(0,255,255), 5);
-	        	
-	        	Core.line(rgbMat, leftTop, rightTop, new Scalar(0,255,255), 3);
-	        	Core.line(rgbMat, rightTop, rightBot, new Scalar(0,255,255), 3);
-	        	Core.line(rgbMat, rightBot, leftBot, new Scalar(0,255,255), 3);
-	        	Core.line(rgbMat, leftBot, leftTop, new Scalar(0,255,255), 3);
-	        	*/
 	            Utils.matToBitmap(rgbMat, processBitmap);
 	            
 	        }
@@ -512,6 +519,11 @@ public class adjustPic extends Activity implements OnTouchListener{
 	double distance(Point pt1, Point pt2){
 		return (Math.sqrt((pt1.x-pt2.x)*(pt1.x-pt2.x)+(pt1.y-pt2.y)*(pt1.y-pt2.y)));
 	}
-	
+	public static Bitmap RotateBitmap(Bitmap source, float angle)
+	{
+	      Matrix matrix = new Matrix();
+	      matrix.postRotate(angle);
+	      return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+	}
 
 }
