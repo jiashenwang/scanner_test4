@@ -76,7 +76,7 @@ public class adjustPic extends Activity implements OnTouchListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.adjust_pic);
-        
+         
         Display display = getWindowManager().getDefaultDisplay(); 
         screenWidth = display.getWidth();  // deprecated
         screenHeight = screenWidth * pictureRatio;
