@@ -87,6 +87,13 @@
 				    />	
 			</LinearLayout>
 			
+			<ImageView
+			    android:paddingTop="10dip"
+			    android:id="@+id/zoom"
+			    android:layout_width="100dip" 
+			    android:layout_height="60dip"
+			    android:visibility="gone"
+			    />
 			
 			<ImageView
 			    android:paddingTop="10dip"

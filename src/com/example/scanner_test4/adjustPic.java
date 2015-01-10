@@ -53,6 +53,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 	Button confirm, rotateLeft, rotateRight;
 	ImageView LT, LB, RT, RB;
 	ImageView imageView, imageViewResult;
+	ImageView zoom;
 	ProgressBar pb;
 	private Point leftTop = new Point(0,0);
 	private Point leftBot = new Point(0,600);
@@ -93,6 +94,8 @@ public class adjustPic extends Activity implements OnTouchListener{
 		imageView.getLayoutParams().width = (int) screenWidth;
 		imageViewResult.getLayoutParams().height = (int) screenHeight;
 		imageViewResult.getLayoutParams().width = (int) screenWidth;
+		
+		zoom = (ImageView) findViewById(R.id.zoom);
 		
         pb = (ProgressBar) findViewById(R.id.progressBar);
         LT = (ImageView) findViewById(R.id.left_up);
@@ -202,18 +205,28 @@ public class adjustPic extends Activity implements OnTouchListener{
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		Bitmap temp = processBitmap.copy(processBitmap.getConfig(), true);;
 		// TODO Auto-generated method stub
 		switch(event.getAction()){
 		case MotionEvent.ACTION_DOWN:
 			moving = true;
+			
+			// zoom part
+			zoom.setVisibility(View.VISIBLE);
+			Bitmap zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
+					v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2,
+					temp);
+			zoom.setImageBitmap(zoomPic);
+			
+			//==========
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if(moving){
-				x=event.getRawX() - v.getLayoutParams().width;
+				x=event.getRawX() - v.getLayoutParams().width*2/3;
 				y=event.getRawY() - v.getLayoutParams().height*2;
 				if(x<=screenWidth-v.getLayoutParams().width/2 && y<=screenHeight-v.getLayoutParams().height/2){
 					if(x<0-v.getLayoutParams().width/2){
-						v.setX(v.getLayoutParams().width/2);
+						v.setX(0-v.getLayoutParams().width/2);
 					}else{
 						v.setX(x);
 					}
@@ -236,7 +249,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 
 				}
 				imageView.setImageBitmap(processBitmap);
-				Bitmap temp = processBitmap.copy(processBitmap.getConfig(), true);;
+				temp = processBitmap.copy(processBitmap.getConfig(), true);;
 				Canvas canvas = new Canvas(temp);
 			    Paint paint = new Paint();
 			    paint.setColor(Color.rgb(102, 204, 255));
@@ -261,16 +274,53 @@ public class adjustPic extends Activity implements OnTouchListener{
 			    		(float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
 			    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
 			    imageView.setImageBitmap(temp);
-				
+			    
+			    // zoom part
+				zoom.setVisibility(View.VISIBLE);
+				zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
+						v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2,
+						temp);
+				zoom.setImageBitmap(zoomPic);
+				// ===========
 			}
 			break;
 		case MotionEvent.ACTION_UP:
 			moving = false;
+			zoom.setVisibility(View.GONE);
 			break;
 		}
 		return true;
 	}
 	
+	private Bitmap findZoomInPic(double x, double y, Bitmap processBitmap2) {
+		// TODO Auto-generated method stub
+		
+		//Log.wtf("!~~~~~~~~~~~", "x: "+x+"--- y: "+y);
+		
+		Bitmap originBm = Bitmap.createBitmap((int)dst_width,(int)dst_height, Config.RGB_565);
+		Mat origin = new Mat();
+		Utils.bitmapToMat(processBitmap2, origin);
+		
+        Mat src_mat=new Mat(4,1,CvType.CV_32FC2);
+        Mat dst_mat=new Mat(4,1,CvType.CV_32FC2);
+        
+        src_mat.put(0,0, x-50,y-50, x+50,y-50, x-50,y+50, x+50,y+50); 
+        dst_mat.put(0,0, 0,0,dst_width,0, 0,dst_height, dst_width,dst_height);
+        Mat tempMat = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
+        
+        Mat dstMat=origin.clone();
+        Imgproc.warpPerspective(origin, dstMat, tempMat, new Size(dst_width,dst_height));
+        
+        double middle_x = dst_width/2;
+        double middle_y = dst_height/2;
+        
+        Core.line(dstMat, new Point(middle_x,middle_y+200), new Point(middle_x,middle_y-200), new Scalar(255,255,255), 5);
+        Core.line(dstMat, new Point(middle_x+200,middle_y), new Point(middle_x-200,middle_y), new Scalar(255,255,255), 5);
+        Utils.matToBitmap(dstMat, originBm);
+		return originBm;
+	}
+
+
 	private class MyAsyncTaskHelper extends AsyncTask<Void, Void, Void>{
 
 		private Context context;
@@ -377,23 +427,23 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        	for(int i=0; i<largest_square.get(0).size();i++){
 	              	if(largest_square.get(0).get(i).x+largest_square.get(0).get(i).y <= minSum){
 	              		minSum = largest_square.get(0).get(i).x+largest_square.get(0).get(i).y;
-	              		leftTop.x = largest_square.get(0).get(i).x+5;
-	              		leftTop.y = largest_square.get(0).get(i).y+5;
+	              		leftTop.x = largest_square.get(0).get(i).x;
+	              		leftTop.y = largest_square.get(0).get(i).y;
 	              	}
 	              	if(largest_square.get(0).get(i).x+largest_square.get(0).get(i).y >= maxSum){
 	              		maxSum = largest_square.get(0).get(i).x+largest_square.get(0).get(i).y;
-	              		rightBot.x = largest_square.get(0).get(i).x-5;
-	              		rightBot.y = largest_square.get(0).get(i).y+5;
+	              		rightBot.x = largest_square.get(0).get(i).x;
+	              		rightBot.y = largest_square.get(0).get(i).y;
 	              	}
 	              	if(largest_square.get(0).get(i).x-largest_square.get(0).get(i).y <= minDiff){
 	              		minDiff = largest_square.get(0).get(i).x-largest_square.get(0).get(i).y;
-	              		leftBot.x = largest_square.get(0).get(i).x+5;
-	              		leftBot.y = largest_square.get(0).get(i).y-5;
+	              		leftBot.x = largest_square.get(0).get(i).x;
+	              		leftBot.y = largest_square.get(0).get(i).y;
 	              	}
 	              	if(largest_square.get(0).get(i).x-largest_square.get(0).get(i).y >= maxDiff){
 	              		maxDiff = largest_square.get(0).get(i).x-largest_square.get(0).get(i).y;
-	              		rightTop.x = largest_square.get(0).get(i).x-5;
-	              		rightTop.y = largest_square.get(0).get(i).y-5;
+	              		rightTop.x = largest_square.get(0).get(i).x;
+	              		rightTop.y = largest_square.get(0).get(i).y;
 	              	}
 	        	}        	
 	            Utils.matToBitmap(rgbMat, processBitmap);

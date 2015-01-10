@@ -4,14 +4,14 @@ int dimen activity_horizontal_margin 0x7f050000
 int dimen activity_vertical_margin 0x7f050001
 int drawable circle 0x7f020000
 int drawable ic_launcher 0x7f020001
-int id action_settings 0x7f04000f
+int id action_settings 0x7f040010
 int id any 0x7f040000
 int id back 0x7f040001
 int id camera 0x7f040003
 int id confirm 0x7f04000b
 int id front 0x7f040002
 int id image 0x7f040006
-int id image_result 0x7f04000e
+int id image_result 0x7f04000f
 int id left_down 0x7f040009
 int id left_up 0x7f040007
 int id progressBar 0x7f040004
@@ -20,6 +20,7 @@ int id right_down 0x7f04000a
 int id right_up 0x7f040008
 int id rotate_left 0x7f04000c
 int id rotate_right 0x7f04000d
+int id zoom 0x7f04000e
 int layout activity_main 0x7f030000
 int layout adjust_pic 0x7f030001
 int menu main 0x7f080000
