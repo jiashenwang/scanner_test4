@@ -48,27 +48,36 @@ containing a value of this type.
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int circle=0x7f020000;
-        public static final int ic_launcher=0x7f020001;
+        public static final int adjustment_circle=0x7f020000;
+        public static final int circle=0x7f020001;
+        public static final int fa_check_selected=0x7f020002;
+        public static final int fa_close_white=0x7f020003;
+        public static final int ic_launcher=0x7f020004;
+        public static final int image_crop_gray=0x7f020005;
+        public static final int rotate_left_gray=0x7f020006;
+        public static final int rotate_right_gray=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f040010;
+        public static final int action_settings=0x7f040013;
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
         public static final int camera=0x7f040003;
-        public static final int confirm=0x7f04000b;
+        public static final int component_control=0x7f04000d;
         public static final int front=0x7f040002;
         public static final int image=0x7f040006;
-        public static final int image_result=0x7f04000f;
+        public static final int image_close=0x7f040011;
+        public static final int image_crop=0x7f040010;
+        public static final int image_done=0x7f040012;
+        public static final int image_left_rotate=0x7f04000e;
+        public static final int image_result=0x7f04000c;
+        public static final int image_right_rotate=0x7f04000f;
+        public static final int image_zoom=0x7f04000b;
         public static final int left_down=0x7f040009;
         public static final int left_up=0x7f040007;
-        public static final int progressBar=0x7f040004;
-        public static final int relative_layout=0x7f040005;
+        public static final int progressBar=0x7f040005;
+        public static final int relative_layout=0x7f040004;
         public static final int right_down=0x7f04000a;
         public static final int right_up=0x7f040008;
-        public static final int rotate_left=0x7f04000c;
-        public static final int rotate_right=0x7f04000d;
-        public static final int zoom=0x7f04000e;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

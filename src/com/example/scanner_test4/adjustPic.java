@@ -45,6 +45,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -79,6 +80,8 @@ public class adjustPic extends Activity implements OnTouchListener{
 	private Point new_rightBot = new Point(0,0);
 	Bitmap processBitmap, resultBitmap;
 	
+	double rHeight, rWidth;
+	
 	double screenWidth=0, screenHeight=0, pictureRatio=0.6;
 	float x,y = 0.0f;
 	boolean moving=false;
@@ -99,7 +102,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 	    actionBar.setDisplayShowHomeEnabled(true);
 	    */
 	    try{
-	    	mCurrentCardID = getIntent().getExtras().getString(CURRENT_CARD_ID, null);
+	    	//mCurrentCardID = getIntent().getExtras().getString(CURRENT_CARD_ID, null);
 	    	mRetakeImageFlag = getIntent().getExtras().getBoolean(RETAKE_IMAGE_FLAG, false);
 	    }catch(Exception e){
 	    	e.printStackTrace();
@@ -110,8 +113,20 @@ public class adjustPic extends Activity implements OnTouchListener{
 //	    screenWidth = display.getWidth();  // deprecated
 //	    screenHeight = screenWidth * pictureRatio;
 	    
-	    screenHeight = display.getHeight();	
-	    screenWidth = screenHeight/pictureRatio;
+	    LinearLayout componentControl;
+	    componentControl = (LinearLayout)findViewById(R.id.component_control);
+	    
+	    rHeight = display.getHeight();
+	    rWidth = display.getWidth()-componentControl.getWidth();
+	    
+	    if(rHeight/rWidth > pictureRatio){
+	    	screenHeight = rHeight;
+	    	screenWidth = screenHeight/pictureRatio;
+	    }else{
+	    	screenWidth = rWidth;
+	    	screenHeight = screenWidth * pictureRatio;
+	    }
+	    
 	    
 	    rl = (RelativeLayout) findViewById(R.id.relative_layout);
 	    confirm = (ImageView) findViewById(R.id.image_done);
@@ -252,11 +267,11 @@ public class adjustPic extends Activity implements OnTouchListener{
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if(moving){
-				x=event.getRawX() - v.getLayoutParams().width;
-				y=event.getRawY() - v.getLayoutParams().height*2;
+				x=event.getRawX()  - v.getLayoutParams().width/2;
+				y=event.getRawY() - v.getLayoutParams().height/2;
 				if(x<=screenWidth-v.getLayoutParams().width/2 && y<=screenHeight-v.getLayoutParams().height/2){
 					if(x<0-v.getLayoutParams().width/2){
-						v.setX(v.getLayoutParams().width/2);
+						v.setX(0-v.getLayoutParams().width/2);
 					}else{
 						v.setX(x);
 					}
@@ -284,25 +299,25 @@ public class adjustPic extends Activity implements OnTouchListener{
 			    Paint paint = new Paint();
 			    paint.setColor(Color.rgb(102, 204, 255));
 			    paint.setStrokeWidth(5);
-			    canvas.drawLine((float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
-			    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f,
-			    		(float)(RT.getX()/(screenWidth*1.0)*dst_width)+RT.getLayoutParams().width/2f, 
-			    		(float)(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f, paint);
+			    canvas.drawLine((float)((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+			    		(float)((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 			    
-			    canvas.drawLine((float)(RT.getX()/(screenWidth*1.0)*dst_width)+RT.getLayoutParams().width/2f, 
-			    		(float)(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f,
-			    		(float)(RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f, 
-			    		(float)(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f, paint);
+			    canvas.drawLine((float)((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+			    		(float)((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 			    
-			    canvas.drawLine((float)(RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f, 
-			    		(float)(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f,
-			    		(float)(LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f, 
-			    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f, paint);
+			    canvas.drawLine((float)((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+			    		(float)((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 			    
-			    canvas.drawLine((float)(LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f, 
-			    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f,
-			    		(float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
-			    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
+			    canvas.drawLine((float)((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+			    		(float)((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+			    		(float)((LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 			    imageView.setImageBitmap(temp);
 			    
 				zoom.setVisibility(View.VISIBLE);
@@ -371,8 +386,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        imageView.setVisibility(View.VISIBLE);
 			imageView.setImageBitmap(processBitmap);
 			
-			
-			
+			/*
 			LT.setX((float) (leftTop.x/(double)dst_width * (int)screenWidth)-(float)LT.getLayoutParams().width/2f);
 			LT.setY((float) (leftTop.y/(double)dst_height * (int)screenHeight)-(float)LT.getLayoutParams().height/2f);
 	        LT.setVisibility(View.VISIBLE);
@@ -388,6 +402,23 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        RB.setX((float) (rightBot.x/(double)dst_width * (int)screenWidth)-(float)RB.getLayoutParams().width/2f);
 	        RB.setY((float) (rightBot.y/(double)dst_height * (int)screenHeight)-(float)RB.getLayoutParams().height/2f);
 	        RB.setVisibility(View.VISIBLE);
+			 */
+			
+			LT.setX((float) (leftTop.x/(double)dst_width * (int)imageView.getWidth())-(float)LT.getLayoutParams().width/2f);
+			LT.setY((float) (leftTop.y/(double)dst_height * (int)imageView.getHeight())-(float)LT.getLayoutParams().height/2f);
+	        LT.setVisibility(View.VISIBLE);
+	        
+			LB.setX((float) (leftBot.x/(double)dst_width * (int)imageView.getWidth())-(float)LB.getLayoutParams().width/2f);
+			LB.setY((float) (leftBot.y/(double)dst_height * (int)imageView.getHeight())-(float)LB.getLayoutParams().height/2f);
+	        LB.setVisibility(View.VISIBLE);
+	        
+			RT.setX((float) (rightTop.x/(double)dst_width * (int)imageView.getWidth())-(float)RT.getLayoutParams().width/2f);
+			RT.setY((float) (rightTop.y/(double)dst_height * (int)imageView.getHeight())-(float)RT.getLayoutParams().height/2f);
+	        RT.setVisibility(View.VISIBLE);
+	        
+	        RB.setX((float) (rightBot.x/(double)dst_width * (int)imageView.getWidth())-(float)RB.getLayoutParams().width/2f);
+	        RB.setY((float) (rightBot.y/(double)dst_height * (int)imageView.getHeight())-(float)RB.getLayoutParams().height/2f);
+	        RB.setVisibility(View.VISIBLE);
 	        
 	        //draw the first four lines
 			Bitmap temp = processBitmap.copy(processBitmap.getConfig(), true);;
@@ -395,25 +426,25 @@ public class adjustPic extends Activity implements OnTouchListener{
 		    Paint paint = new Paint();
 		    paint.setColor(Color.rgb(102, 204, 255));
 		    paint.setStrokeWidth(5);
-		    canvas.drawLine((float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
-		    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f,
-		    		(float)(RT.getX()/(screenWidth*1.0)*dst_width)+RT.getLayoutParams().width/2f, 
-		    		(float)(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f, paint);
+		    canvas.drawLine((float)((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+		    		(float)((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 		    
-		    canvas.drawLine((float)(RT.getX()/(screenWidth*1.0)*dst_width)+RT.getLayoutParams().width/2f, 
-		    		(float)(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f,
-		    		(float)(RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f, 
-		    		(float)(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f, paint);
+		    canvas.drawLine((float)((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+		    		(float)((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 		    
-		    canvas.drawLine((float)(RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f, 
-		    		(float)(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f,
-		    		(float)(LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f, 
-		    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f, paint);
+		    canvas.drawLine((float)((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+		    		(float)((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 		    
-		    canvas.drawLine((float)(LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f, 
-		    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f,
-		    		(float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
-		    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
+		    canvas.drawLine((float)((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
+		    		(float)((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
+		    		(float)((LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
 	
 		    		
 		    imageView.setImageBitmap(temp);
