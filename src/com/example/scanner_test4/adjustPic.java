@@ -1,5 +1,7 @@
 package com.example.scanner_test4;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -47,13 +50,24 @@ import android.widget.RelativeLayout;
 
 public class adjustPic extends Activity implements OnTouchListener{
 	
+	private final String TAG = "BZCardImageAdjustmentActivity";
+	
+	public static String CURRENT_CARD_ID = 
+			"com.whova.bzcard.adjustment.BZCardImageAdjustmentActivity.current_card_id";
+	
+	public static String RETAKE_IMAGE_FLAG = 
+			"com.whova.bzcard.adjustment.BZCardImageAdjustmentActivity.retake_image_flag";
+	
+	private String mCurrentCardID = null;
+	private boolean mRetakeImageFlag = false;
+	
 	final int dst_width = 1000;
-    final int dst_height = 600;
-     
-	Button confirm, rotateLeft, rotateRight;
+	final int dst_height = 600;
+	 
+	ImageView confirm, rotateLeft, rotateRight;
+	ImageView zoom;
 	ImageView LT, LB, RT, RB;
 	ImageView imageView, imageViewResult;
-	ImageView zoom;
 	ProgressBar pb;
 	private Point leftTop = new Point(0,0);
 	private Point leftBot = new Point(0,600);
@@ -66,59 +80,78 @@ public class adjustPic extends Activity implements OnTouchListener{
 	Bitmap processBitmap, resultBitmap;
 	
 	double screenWidth=0, screenHeight=0, pictureRatio=0.6;
-	 
 	float x,y = 0.0f;
 	boolean moving=false;
-	
-	
 	RelativeLayout rl;
 	
-    
 	@Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.adjust_pic);
-        
-        Display display = getWindowManager().getDefaultDisplay(); 
-        screenWidth = display.getWidth();  // deprecated
-        screenHeight = screenWidth * pictureRatio;
-        
-        rl = (RelativeLayout) findViewById(R.id.relative_layout);
-        confirm = (Button) findViewById(R.id.confirm);
-        rotateLeft = (Button) findViewById(R.id.rotate_left);
-        rotateRight = (Button) findViewById(R.id.rotate_right);
-        
-        imageView = (ImageView) findViewById(R.id.image);
-        imageViewResult = (ImageView) findViewById(R.id.image_result);
+	protected void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+	    
+        if(!OpenCVLoader.initDebug()){	
+        }	    
+	    setContentView(R.layout.adjust_pic);
+	    
+	    /*
+	    ActionBar actionBar = getActionBar();
+	    actionBar.setTitle("Crop card");
+	    actionBar.setDisplayHomeAsUpEnabled(true);
+	    actionBar.setDisplayShowHomeEnabled(true);
+	    */
+	    try{
+	    	mCurrentCardID = getIntent().getExtras().getString(CURRENT_CARD_ID, null);
+	    	mRetakeImageFlag = getIntent().getExtras().getBoolean(RETAKE_IMAGE_FLAG, false);
+	    }catch(Exception e){
+	    	e.printStackTrace();
+	    }
+	    
+	    Display display = getWindowManager().getDefaultDisplay();
+
+//	    screenWidth = display.getWidth();  // deprecated
+//	    screenHeight = screenWidth * pictureRatio;
+	    
+	    screenHeight = display.getHeight();	
+	    screenWidth = screenHeight/pictureRatio;
+	    
+	    rl = (RelativeLayout) findViewById(R.id.relative_layout);
+	    confirm = (ImageView) findViewById(R.id.image_done);
+	    rotateLeft = (ImageView) findViewById(R.id.image_left_rotate);
+	    rotateRight = (ImageView) findViewById(R.id.image_right_rotate);
+	    
+	    imageView = (ImageView) findViewById(R.id.image);
+	    imageViewResult = (ImageView) findViewById(R.id.image_result);
 		imageView.getLayoutParams().height = (int) screenHeight;
 		imageView.getLayoutParams().width = (int) screenWidth;
 		imageViewResult.getLayoutParams().height = (int) screenHeight;
 		imageViewResult.getLayoutParams().width = (int) screenWidth;
 		
-		zoom = (ImageView) findViewById(R.id.zoom);
+		zoom = (ImageView)findViewById(R.id.image_zoom);
 		
-        pb = (ProgressBar) findViewById(R.id.progressBar);
-        LT = (ImageView) findViewById(R.id.left_up);
-        LB = (ImageView) findViewById(R.id.left_down);
-        RT = (ImageView) findViewById(R.id.right_up);
-        RB = (ImageView) findViewById(R.id.right_down);
-        LT.setOnTouchListener(this);
-        LB.setOnTouchListener(this);
-        RT.setOnTouchListener(this);
-        RB.setOnTouchListener(this);
-        
-        
-        MyAsyncTaskHelper async = new MyAsyncTaskHelper(getApplicationContext());
-        async.execute();
-        
-        confirm.setOnClickListener(new ConfirmListerner());
-        rotateLeft.setOnClickListener(new RotateLeftListerner());
-        rotateRight.setOnClickListener(new RotateRightListerner());
+	    pb = (ProgressBar) findViewById(R.id.progressBar);
+	    LT = (ImageView) findViewById(R.id.left_up);
+	    LB = (ImageView) findViewById(R.id.left_down);
+	    RT = (ImageView) findViewById(R.id.right_up);
+	    RB = (ImageView) findViewById(R.id.right_down);
+	    LT.setOnTouchListener(this);
+	    LB.setOnTouchListener(this);
+	    RT.setOnTouchListener(this);
+	    RB.setOnTouchListener(this);
+	    
+	    MyAsyncTaskHelper async = new MyAsyncTaskHelper(getApplicationContext());
+	    async.execute();
+	    
+	    confirm.setOnClickListener(new ConfirmListerner());
+	    rotateLeft.setOnClickListener(new RotateLeftListerner());
+	    rotateRight.setOnClickListener(new RotateRightListerner());
 	}
-	
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
 
 	private class ConfirmListerner implements OnClickListener{
-
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
@@ -132,42 +165,43 @@ public class adjustPic extends Activity implements OnTouchListener{
 			new_rightBot = new Point((RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f,
 					(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f);
 			
-            Mat src_mat=new Mat(4,1,CvType.CV_32FC2);
-            Mat dst_mat=new Mat(4,1,CvType.CV_32FC2);
-            
-            if(distance(new_leftTop,new_rightTop)>distance(new_leftTop,new_leftBot)){
-                src_mat.put(0,0,new_leftTop.x,new_leftTop.y,
-                		new_rightTop.x, new_rightTop.y, 
-                		new_leftBot.x, new_leftBot.y, 
-                		new_rightBot.x, new_rightBot.y );
-            }else{
-                src_mat.put(0,0,new_rightTop.x,new_rightTop.y,
-                		new_rightBot.x, new_rightBot.y, 
-                		new_leftTop.x, new_leftTop.y, 
-                		new_leftBot.x, new_leftBot.y);
-            }
-            
-            Mat rgbMat = new Mat();  
-            Utils.bitmapToMat(processBitmap, rgbMat);
-            Imgproc.resize(rgbMat, rgbMat, new Size(dst_width, dst_height));
-            resultBitmap = Bitmap.createBitmap((int)dst_width,(int)dst_height, Config.RGB_565);
-            
-            dst_mat.put(0,0, 0,0,dst_width,0, 0,dst_height, dst_width,dst_height);
-            Mat tempMat = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
-            Mat dstMat=rgbMat.clone();
-            Imgproc.warpPerspective(rgbMat, dstMat, tempMat, new Size(dst_width,dst_height));
-            Utils.matToBitmap(dstMat, resultBitmap);
+	        Mat src_mat=new Mat(4,1,CvType.CV_32FC2);
+	        Mat dst_mat=new Mat(4,1,CvType.CV_32FC2);
+	        
+	        if(distance(new_leftTop,new_rightTop)>distance(new_leftTop,new_leftBot)){
+	            src_mat.put(0,0,new_leftTop.x,new_leftTop.y,
+	            		new_rightTop.x, new_rightTop.y, 
+	            		new_leftBot.x, new_leftBot.y, 
+	            		new_rightBot.x, new_rightBot.y );
+	        }else{
+	            src_mat.put(0,0,new_rightTop.x,new_rightTop.y,
+	            		new_rightBot.x, new_rightBot.y, 
+	            		new_leftTop.x, new_leftTop.y, 
+	            		new_leftBot.x, new_leftBot.y);
+	        }
+	        
+	        Mat rgbMat = new Mat();  
+	        Utils.bitmapToMat(processBitmap, rgbMat);
+	        Imgproc.resize(rgbMat, rgbMat, new Size(dst_width, dst_height));
+	        resultBitmap = Bitmap.createBitmap((int)dst_width,(int)dst_height, Config.RGB_565);
+	        
+	        dst_mat.put(0,0, 0,0,dst_width,0, 0,dst_height, dst_width,dst_height);
+	        Mat tempMat = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
+	        Mat dstMat=rgbMat.clone();
+	        Imgproc.warpPerspective(rgbMat, dstMat, tempMat, new Size(dst_width,dst_height));
+	        Utils.matToBitmap(dstMat, resultBitmap);
 			
-            // flip is not done
-			rotateLeft.setVisibility(View.VISIBLE);
-			rotateRight.setVisibility(View.VISIBLE);
-			imageViewResult.setImageBitmap(resultBitmap);
-			imageViewResult.setVisibility(View.VISIBLE);
+	        // flip is not done
+			//rotateLeft.setVisibility(View.VISIBLE);
+			//rotateRight.setVisibility(View.VISIBLE);
+	        
+//			imageViewResult.setImageBitmap(resultBitmap);
+//			imageViewResult.setVisibility(View.VISIBLE);
 		}
 		
 	}
 	private class RotateLeftListerner implements OnClickListener{
-
+	
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
@@ -184,7 +218,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 		
 	}
 	private class RotateRightListerner implements OnClickListener{
-
+	
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
@@ -205,28 +239,24 @@ public class adjustPic extends Activity implements OnTouchListener{
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		Bitmap temp = processBitmap.copy(processBitmap.getConfig(), true);;
-		// TODO Auto-generated method stub
+		Bitmap temp = processBitmap.copy(processBitmap.getConfig(), true);
 		switch(event.getAction()){
 		case MotionEvent.ACTION_DOWN:
-			moving = true;
-			
-			// zoom part
+			moving = true;		
+			// handle zoom in functionality
 			zoom.setVisibility(View.VISIBLE);
 			Bitmap zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
-					v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2,
-					temp);
+					v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2, temp);
 			zoom.setImageBitmap(zoomPic);
 			
-			//==========
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if(moving){
-				x=event.getRawX() - v.getLayoutParams().width*2/3;
+				x=event.getRawX() - v.getLayoutParams().width;
 				y=event.getRawY() - v.getLayoutParams().height*2;
 				if(x<=screenWidth-v.getLayoutParams().width/2 && y<=screenHeight-v.getLayoutParams().height/2){
 					if(x<0-v.getLayoutParams().width/2){
-						v.setX(0-v.getLayoutParams().width/2);
+						v.setX(v.getLayoutParams().width/2);
 					}else{
 						v.setX(x);
 					}
@@ -246,7 +276,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 					}else{
 						v.setY(y);
 					}
-
+	
 				}
 				imageView.setImageBitmap(processBitmap);
 				temp = processBitmap.copy(processBitmap.getConfig(), true);;
@@ -275,13 +305,12 @@ public class adjustPic extends Activity implements OnTouchListener{
 			    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
 			    imageView.setImageBitmap(temp);
 			    
-			    // zoom part
 				zoom.setVisibility(View.VISIBLE);
 				zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
 						v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2,
 						temp);
-				zoom.setImageBitmap(zoomPic);
-				// ===========
+				zoom.setImageBitmap(zoomPic);			    
+				
 			}
 			break;
 		case MotionEvent.ACTION_UP:
@@ -292,11 +321,8 @@ public class adjustPic extends Activity implements OnTouchListener{
 		return true;
 	}
 	
+	// find zoom in picture
 	private Bitmap findZoomInPic(double x, double y, Bitmap processBitmap2) {
-		// TODO Auto-generated method stub
-		
-		//Log.wtf("!~~~~~~~~~~~", "x: "+x+"--- y: "+y);
-		
 		Bitmap originBm = Bitmap.createBitmap((int)dst_width,(int)dst_height, Config.RGB_565);
 		Mat origin = new Mat();
 		Utils.bitmapToMat(processBitmap2, origin);
@@ -318,11 +344,10 @@ public class adjustPic extends Activity implements OnTouchListener{
         Core.line(dstMat, new Point(middle_x+200,middle_y), new Point(middle_x-200,middle_y), new Scalar(255,255,255), 5);
         Utils.matToBitmap(dstMat, originBm);
 		return originBm;
-	}
+	}	
 
-
-	private class MyAsyncTaskHelper extends AsyncTask<Void, Void, Void>{
-
+		private class MyAsyncTaskHelper extends AsyncTask<Void, Void, Void>{
+	
 		private Context context;
 		
 		MyAsyncTaskHelper(Context c){
@@ -389,15 +414,16 @@ public class adjustPic extends Activity implements OnTouchListener{
 		    		(float)(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f,
 		    		(float)(LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f, 
 		    		(float)(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f, paint);
-
+	
 		    		
 		    imageView.setImageBitmap(temp);
 		}
 		
 		private void findCard() {
-			Mat rgbMat = new Mat();  
+			Mat rgbMat = new Mat(); 
 			Bitmap srcBitmap = BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-	        		+"/scanner_test4_pic.jpg");
+	        		+"/scanner_test4_pic.jpg");	
+			
 			if(srcBitmap.getWidth() < srcBitmap.getHeight()){
 				Mat rotate = new Mat();
 				Utils.bitmapToMat(srcBitmap, rotate);
@@ -412,9 +438,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        ArrayList<List<Point>> squares = new ArrayList<List<Point>>();
 	        ArrayList<List<Point>> largest_square = new ArrayList<List<Point>>();
 	        squares = (ArrayList<List<Point>>) find_squares(rgbMat).clone();
-	        largest_square = (ArrayList<List<Point>>) find_largest_square(squares).clone();
-	        
-	        
+	        largest_square = (ArrayList<List<Point>>) find_largest_square(squares).clone();    
 	        
 	        if(largest_square.size()==0){
 	        	Utils.matToBitmap(rgbMat, processBitmap);
@@ -427,23 +451,23 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        	for(int i=0; i<largest_square.get(0).size();i++){
 	              	if(largest_square.get(0).get(i).x+largest_square.get(0).get(i).y <= minSum){
 	              		minSum = largest_square.get(0).get(i).x+largest_square.get(0).get(i).y;
-	              		leftTop.x = largest_square.get(0).get(i).x;
-	              		leftTop.y = largest_square.get(0).get(i).y;
+	              		leftTop.x = largest_square.get(0).get(i).x+5;
+	              		leftTop.y = largest_square.get(0).get(i).y+5;
 	              	}
 	              	if(largest_square.get(0).get(i).x+largest_square.get(0).get(i).y >= maxSum){
 	              		maxSum = largest_square.get(0).get(i).x+largest_square.get(0).get(i).y;
-	              		rightBot.x = largest_square.get(0).get(i).x;
-	              		rightBot.y = largest_square.get(0).get(i).y;
+	              		rightBot.x = largest_square.get(0).get(i).x-5;
+	              		rightBot.y = largest_square.get(0).get(i).y+5;
 	              	}
 	              	if(largest_square.get(0).get(i).x-largest_square.get(0).get(i).y <= minDiff){
 	              		minDiff = largest_square.get(0).get(i).x-largest_square.get(0).get(i).y;
-	              		leftBot.x = largest_square.get(0).get(i).x;
-	              		leftBot.y = largest_square.get(0).get(i).y;
+	              		leftBot.x = largest_square.get(0).get(i).x+5;
+	              		leftBot.y = largest_square.get(0).get(i).y-5;
 	              	}
 	              	if(largest_square.get(0).get(i).x-largest_square.get(0).get(i).y >= maxDiff){
 	              		maxDiff = largest_square.get(0).get(i).x-largest_square.get(0).get(i).y;
-	              		rightTop.x = largest_square.get(0).get(i).x;
-	              		rightTop.y = largest_square.get(0).get(i).y;
+	              		rightTop.x = largest_square.get(0).get(i).x-5;
+	              		rightTop.y = largest_square.get(0).get(i).y-5;
 	              	}
 	        	}        	
 	            Utils.matToBitmap(rgbMat, processBitmap);
@@ -465,7 +489,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 		        int max_height = 0;
 		        int max_square_idx = 0;
 		        for (int i = 0; i < squares.size(); i++){
-
+	
 					Rect rectangle = Imgproc.boundingRect(new MatOfPoint(squares.get(i).get(0),
 							squares.get(i).get(1),squares.get(i).get(2),squares.get(i).get(3)));
 					
@@ -480,7 +504,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 				return largest_squares;
 		    }
 		}
-
+	
 		private ArrayList<List<Point>> find_squares(Mat rgbMat) {
 			// TODO Auto-generated method stub
 			ArrayList<List<Point>> squares = new ArrayList<List<Point>>();
@@ -553,7 +577,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 			return (Math.sqrt((pt1.x-pt2.x)*(pt1.x-pt2.x)+(pt1.y-pt2.y)*(pt1.y-pt2.y)));
 		}
 	}
-
+	
 	public static float convertDpToPixel(float dp, Context context){
 	    Resources resources = context.getResources();
 	    DisplayMetrics metrics = resources.getDisplayMetrics();

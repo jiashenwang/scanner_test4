@@ -1,109 +1,248 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">	
-	<LinearLayout 
-		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent" 
-		    android:orientation="vertical">
-	
-		    <ProgressBar
-			   android:id="@+id/progressBar"
-			   style="?android:attr/progressBarStyleLarge"
-			   android:layout_width="wrap_content"
-			   android:layout_height="wrap_content"
-			   android:layout_centerHorizontal="true" />
-		    
-		    <RelativeLayout
-		        android:id="@+id/relative_layout"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        >
-				<ImageView
-				    android:id="@+id/image"
-				    android:layout_width="wrap_content" 
-				    android:layout_height="wrap_content"
-				    android:visibility="gone"
-				    />
-			
-				
-				
-				
-				<ImageView
-				    android:src="@drawable/circle"
-				    android:id="@+id/left_up"
-				    android:layout_width="50dip" 
-				    android:layout_height="50dip"
-				    android:visibility="gone"
-				    />
-				<ImageView
-				    android:src="@drawable/circle"
-				    android:id="@+id/right_up"
-				    android:layout_width="50dip" 
-				    android:layout_height="50dip"
-				    android:visibility="gone"
-				    />
-				<ImageView
-				    android:src="@drawable/circle"
-				    android:id="@+id/left_down"
-				    android:layout_width="50dip" 
-				    android:layout_height="50dip"
-				    android:visibility="gone"
-				    />
-				<ImageView
-				    android:src="@drawable/circle"
-				    android:id="@+id/right_down"
-				    android:layout_width="50dp" 
-				    android:layout_height="50dp"
-				    android:visibility="gone"
-				    />
-			</RelativeLayout>
-			
-		    <LinearLayout
-			    android:layout_width="wrap_content"
-			    android:layout_height="fill_parent" 
-			    android:orientation="horizontal">
-				
-				<Button
-				    android:id="@+id/confirm"
-				    android:text=" Confirm "
-				    android:layout_width="wrap_content" 
-				    android:layout_height="wrap_content"
-				    android:visibility="gone"
-				    />
-				<Button
-				    android:paddingLeft="10dip"
-				    android:id="@+id/rotate_left"
-				    android:text="Rotate left"
-				    android:layout_width="wrap_content" 
-				    android:layout_height="wrap_content"
-				    android:visibility="gone"
-				    />
-				<Button
-				    android:paddingLeft="10dip"
-				    android:id="@+id/rotate_right"
-				    android:text="Rotate right"
-				    android:layout_width="wrap_content" 
-				    android:layout_height="wrap_content"
-				    android:visibility="gone"
-				    />	
-			</LinearLayout>
-			
-			<ImageView
-			    android:paddingTop="10dip"
-			    android:id="@+id/zoom"
-			    android:layout_width="100dip" 
-			    android:layout_height="60dip"
-			    android:visibility="gone"
-			    />
-			
-			<ImageView
-			    android:paddingTop="10dip"
-			    android:id="@+id/image_result"
-			    android:layout_width="wrap_content" 
-			    android:layout_height="wrap_content"
-			    android:visibility="gone"
-			    />
-	    
-	
-	</LinearLayout>
-	
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+            
+        <RelativeLayout
+            android:id="@+id/relative_layout"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+            
+
+                            
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal" />
+            
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content"
+                android:visibility="visible" />                
+
+            <ImageView
+                android:src="@drawable/adjustment_circle"
+                android:id="@+id/left_up"
+                android:layout_width="40dp" 
+                android:layout_height="40dp"
+                android:visibility="gone"/>
+            
+            <ImageView
+                android:src="@drawable/adjustment_circle"
+                android:id="@+id/right_up"
+                android:layout_width="40dp" 
+                android:layout_height="40dp"
+                android:visibility="gone"/>
+            
+            <ImageView
+                android:src="@drawable/adjustment_circle"
+                android:id="@+id/left_down"
+                android:layout_width="40dp" 
+                android:layout_height="40dp"
+                android:visibility="gone"/>
+            
+            <ImageView
+                android:src="@drawable/adjustment_circle"
+                android:id="@+id/right_down"
+                android:layout_width="40dp" 
+                android:layout_height="40dp"
+                android:visibility="gone"/>        
+                
+            <ImageView
+                android:id="@+id/image_zoom"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:visibility="gone"/>
+            
+            <ImageView
+                android:paddingTop="10dip"
+                android:id="@+id/image_result"
+                android:layout_width="match_parent" 
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:visibility="gone"/>     
+            
+        </RelativeLayout>
+        
+        <LinearLayout
+            android:id="@+id/component_control"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="#88000000"
+            android:orientation="vertical">
+            
+            <ImageView
+                android:id="@+id/image_left_rotate"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+               android:visibility="gone"
+                android:src="@drawable/rotate_left_gray" />
+            
+           <ImageView
+               android:id="@+id/image_right_rotate"
+               android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:layout_gravity="center_horizontal"
+               android:layout_weight="1"
+               android:visibility="gone"
+               android:src="@drawable/rotate_right_gray" />
+           
+           <ImageView
+               android:id="@+id/image_crop"
+               android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:layout_gravity="center_horizontal"
+               android:layout_weight="1"
+               android:visibility="gone"
+               android:src="@drawable/image_crop_gray" />
+           
+           <ImageView
+               android:id="@+id/image_close"
+               android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:layout_gravity="center_horizontal"
+               android:layout_weight="1"
+               android:src="@drawable/fa_close_white" />
+           
+           <ImageView
+               android:id="@+id/image_done"
+               android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:layout_gravity="center_horizontal"
+               android:layout_weight="1"
+               android:src="@drawable/fa_check_selected" />
+                          
+       </LinearLayout>        
+        
+</LinearLayout> 
+    
+    
+<!--
+ <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent">
+    
+    <LinearLayout 
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" 
+            android:orientation="vertical">
+    
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal" />
+            
+            <RelativeLayout
+                android:id="@+id/relative_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                
+                <ImageView
+                    android:paddingTop="10dip"
+                    android:id="@+id/image_result"
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>                
+                
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content"
+                    android:visibility="visible" />                
+
+                <ImageView
+                    android:src="@drawable/adjustment_circle"
+                    android:id="@+id/left_up"
+                    android:layout_width="40dp" 
+                    android:layout_height="40dp"
+                    android:visibility="gone"/>
+                
+                <ImageView
+                    android:src="@drawable/adjustment_circle"
+                    android:id="@+id/right_up"
+                    android:layout_width="40dp" 
+                    android:layout_height="40dp"
+                    android:visibility="gone"/>
+                
+                <ImageView
+                    android:src="@drawable/adjustment_circle"
+                    android:id="@+id/left_down"
+                    android:layout_width="40dp" 
+                    android:layout_height="40dp"
+                    android:visibility="gone"/>
+                
+                <ImageView
+                    android:src="@drawable/adjustment_circle"
+                    android:id="@+id/right_down"
+                    android:layout_width="40dp" 
+                    android:layout_height="40dp"
+                    android:visibility="gone"/>           
+                
+            </RelativeLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" 
+                android:orientation="horizontal">
+                
+                <Button
+                    android:id="@+id/confirm"
+                    android:text="Confirm"
+                    android:padding="5dp"
+                    android:background="@drawable/shape_round_rectangle_btn"
+                    android:textColor="@color/white"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" 
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+                
+                <Button
+                    android:paddingLeft="10dip"
+                    android:id="@+id/rotate_left"
+                    android:padding="5dp"
+                    android:background="@drawable/shape_round_rectangle_btn_green"
+                    android:textColor="@color/white"                
+                    android:text="Rotate left"
+                    android:layout_marginRight="20dp"
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+                
+                <Button
+                    android:paddingLeft="10dip"
+                    android:id="@+id/rotate_right"
+                    android:padding="5dp"
+                    android:background="@drawable/shape_round_rectangle_btn_green"                     
+                    android:text="Rotate right"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content" 
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>  
+                    
+            </LinearLayout>
+            
+            
+            <ImageView
+                android:paddingTop="10dip"
+                android:id="@+id/image_result"
+                android:layout_width="wrap_content" 
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+    
 </ScrollView>
+-->
