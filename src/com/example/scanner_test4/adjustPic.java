@@ -2,6 +2,7 @@ package com.example.scanner_test4;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -171,6 +173,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
 			
+			/*
 			new_leftTop = new Point((LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f,
 					(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f);
 			new_leftBot = new Point((LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f,
@@ -179,6 +182,17 @@ public class adjustPic extends Activity implements OnTouchListener{
 					(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f);
 			new_rightBot = new Point((RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f,
 					(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f);
+					*/
+			
+			new_leftTop = new Point(((LT.getX()+LT.getLayoutParams().width/2f)/(imageView.getWidth())*dst_width),
+					((LT.getY()+LT.getLayoutParams().height/2f)/(imageView.getHeight())*dst_height));
+			new_leftBot = new Point(((LB.getX()+LB.getLayoutParams().width/2f)/(imageView.getWidth())*dst_width),
+					((LB.getY()+LB.getLayoutParams().height/2f)/(imageView.getHeight())*dst_height));
+			new_rightTop = new Point(((RT.getX()+RT.getLayoutParams().width/2f)/(imageView.getWidth())*dst_width),
+					((RT.getY()+RT.getLayoutParams().height/2f)/(imageView.getHeight())*dst_height));
+			new_rightBot = new Point(((RB.getX()+RB.getLayoutParams().width/2f)/(imageView.getWidth())*dst_width),
+					((RB.getY()+RB.getLayoutParams().height/2f)/(imageView.getHeight())*dst_height));
+			
 			
 	        Mat src_mat=new Mat(4,1,CvType.CV_32FC2);
 	        Mat dst_mat=new Mat(4,1,CvType.CV_32FC2);
@@ -205,6 +219,31 @@ public class adjustPic extends Activity implements OnTouchListener{
 	        Mat dstMat=rgbMat.clone();
 	        Imgproc.warpPerspective(rgbMat, dstMat, tempMat, new Size(dst_width,dst_height));
 	        Utils.matToBitmap(dstMat, resultBitmap);
+	        
+	        
+	        //store result into cell phone
+	        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+	         // path to /data/data/yourapp/app_data/imageDir
+	        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+	        // Create imageDir
+	        File mypath=new File(directory,"profile.jpg");
+
+	        FileOutputStream fos = null;
+	        try {           
+	            fos = new FileOutputStream(mypath);
+	       // Use the compress method on the BitMap object to write image to the OutputStream
+	            resultBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+	            fos.close();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        
+	        // done with storing
+	        
+	        
+	        Intent intent = new Intent(adjustPic.this, result.class);
+	        intent.putExtra("PATH", directory.getAbsolutePath());
+	        startActivity(intent);
 			
 	        // flip is not done
 			//rotateLeft.setVisibility(View.VISIBLE);
@@ -260,14 +299,14 @@ public class adjustPic extends Activity implements OnTouchListener{
 			moving = true;		
 			// handle zoom in functionality
 			zoom.setVisibility(View.VISIBLE);
-			Bitmap zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
-					v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2, temp);
+			Bitmap zoomPic = findZoomInPic((v.getX()+v.getLayoutParams().width/2)/(imageView.getWidth())*dst_width+v.getLayoutParams().width/2, 
+					(v.getY()+v.getLayoutParams().height/2)/(imageView.getHeight())*dst_height, temp);
 			zoom.setImageBitmap(zoomPic);
 			
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if(moving){
-				x=event.getRawX()  - v.getLayoutParams().width/2;
+				x=event.getRawX() - v.getLayoutParams().width/2;
 				y=event.getRawY() - v.getLayoutParams().height/2;
 				if(x<=screenWidth-v.getLayoutParams().width/2 && y<=screenHeight-v.getLayoutParams().height/2){
 					if(x<0-v.getLayoutParams().width/2){
@@ -321,8 +360,8 @@ public class adjustPic extends Activity implements OnTouchListener{
 			    imageView.setImageBitmap(temp);
 			    
 				zoom.setVisibility(View.VISIBLE);
-				zoomPic = findZoomInPic(v.getX()/(screenWidth*1.0)*dst_width+v.getLayoutParams().width/2, 
-						v.getY()/(screenHeight*1.0)*dst_height+v.getLayoutParams().height/2,
+				zoomPic = findZoomInPic((v.getX()+v.getLayoutParams().width/2)/(imageView.getWidth())*dst_width, 
+						(v.getY()+v.getLayoutParams().height/2)/(imageView.getHeight())*dst_height,
 						temp);
 				zoom.setImageBitmap(zoomPic);			    
 				

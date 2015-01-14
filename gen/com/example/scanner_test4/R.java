@@ -58,7 +58,7 @@ containing a value of this type.
         public static final int rotate_right_gray=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f040013;
+        public static final int action_settings=0x7f040014;
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
         public static final int camera=0x7f040003;
@@ -76,12 +76,14 @@ containing a value of this type.
         public static final int left_up=0x7f040007;
         public static final int progressBar=0x7f040005;
         public static final int relative_layout=0x7f040004;
+        public static final int result=0x7f040013;
         public static final int right_down=0x7f04000a;
         public static final int right_up=0x7f040008;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int adjust_pic=0x7f030001;
+        public static final int result=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f080000;

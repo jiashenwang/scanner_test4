@@ -10,7 +10,7 @@ int drawable ic_launcher 0x7f020004
 int drawable image_crop_gray 0x7f020005
 int drawable rotate_left_gray 0x7f020006
 int drawable rotate_right_gray 0x7f020007
-int id action_settings 0x7f040013
+int id action_settings 0x7f040014
 int id any 0x7f040000
 int id back 0x7f040001
 int id camera 0x7f040003
@@ -28,10 +28,12 @@ int id left_down 0x7f040009
 int id left_up 0x7f040007
 int id progressBar 0x7f040005
 int id relative_layout 0x7f040004
+int id result 0x7f040013
 int id right_down 0x7f04000a
 int id right_up 0x7f040008
 int layout activity_main 0x7f030000
 int layout adjust_pic 0x7f030001
+int layout result 0x7f030002
 int menu main 0x7f080000
 int string action_settings 0x7f060002
 int string app_name 0x7f060000
