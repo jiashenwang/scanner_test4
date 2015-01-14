@@ -34,6 +34,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -71,6 +74,7 @@ public class adjustPic extends Activity implements OnTouchListener{
 	ImageView zoom;
 	ImageView LT, LB, RT, RB;
 	ImageView imageView, imageViewResult;
+	ImageView blackLayer;// whiteLayer;
 	ProgressBar pb;
 	private Point leftTop = new Point(0,0);
 	private Point leftBot = new Point(0,600);
@@ -160,6 +164,16 @@ public class adjustPic extends Activity implements OnTouchListener{
 	    confirm.setOnClickListener(new ConfirmListerner());
 	    rotateLeft.setOnClickListener(new RotateLeftListerner());
 	    rotateRight.setOnClickListener(new RotateRightListerner());
+	    
+	    
+	    blackLayer = (ImageView) findViewById(R.id.black_layer);
+	    blackLayer.getLayoutParams().height = imageView.getLayoutParams().height;
+	    blackLayer.getLayoutParams().width = imageView.getLayoutParams().width;
+	    /*
+	    whiteLayer = (ImageView) findViewById(R.id.white_layer);
+	    whiteLayer.getLayoutParams().height = imageView.getLayoutParams().height;
+	    whiteLayer.getLayoutParams().width = imageView.getLayoutParams().width;
+	    */
 	}
 
 	@Override
@@ -345,13 +359,48 @@ public class adjustPic extends Activity implements OnTouchListener{
 			    		(float)((LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height),
 			    		(float)((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width), 
 			    		(float)((LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height), paint);
+			    
 			    imageView.setImageBitmap(temp);
+		   
 			    
 				zoom.setVisibility(View.VISIBLE);
 				zoomPic = findZoomInPic((v.getX()+v.getLayoutParams().width/2)/(imageView.getWidth())*dst_width, 
 						(v.getY()+v.getLayoutParams().height/2)/(imageView.getHeight())*dst_height,
 						temp);
-				zoom.setImageBitmap(zoomPic);			    
+				zoom.setImageBitmap(zoomPic);	
+				
+			    //drwing black part
+			    blackLayer.setBackgroundColor(Color.rgb(32,32,32));
+			    blackLayer.buildDrawingCache();
+			    Bitmap temp2 = imageView.getDrawingCache();
+			    temp2 = Bitmap.createBitmap(temp.getWidth(),temp.getHeight(), Config.ARGB_8888);
+			    Canvas canvas2 = new Canvas(temp2);
+			    Path path = new Path();
+			    final Rect rect = new Rect(0, 0, temp.getWidth(),temp.getHeight());
+			    
+			    Point point1_draw = new Point((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width,
+			    		(LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+	            Point point2_draw = new Point((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width,
+	            		(RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+	            Point point3_draw = new Point((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width, 
+	            		(RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+	            Point point4_draw = new Point((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width, 
+	            		(LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+	            
+	            path.moveTo((float)point1_draw.x, (float)point1_draw.y);
+	            path.lineTo((float)point2_draw.x, (float)point2_draw.y);
+	            path.lineTo((float)point3_draw.x, (float)point3_draw.y);
+	            path.lineTo((float)point4_draw.x, (float)point4_draw.y);
+	            path.lineTo((float)point1_draw.x, (float)point1_draw.y);
+	            
+	            path.close();
+	            canvas2.drawARGB(0, 0, 0, 0);
+	            paint.setColor(Color.WHITE);
+	            canvas2.drawPath(path, paint);
+	            paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+	            canvas2.drawBitmap(temp2, 0, 0, paint);
+	            blackLayer.setImageBitmap(temp2);
+	            // end of drawing part
 				
 			}
 			break;
@@ -475,6 +524,39 @@ public class adjustPic extends Activity implements OnTouchListener{
 	
 		    		
 		    imageView.setImageBitmap(temp);
+		    
+		    //drwing black part
+		    blackLayer.setBackgroundColor(Color.rgb(32,32,32));
+		    blackLayer.buildDrawingCache();
+		    Bitmap temp2 = imageView.getDrawingCache();
+		    temp2 = Bitmap.createBitmap(temp.getWidth(),temp.getHeight(), Config.ARGB_8888);
+		    Canvas canvas2 = new Canvas(temp2);
+		    Path path = new Path();
+		    final Rect rect = new Rect(0, 0, temp.getWidth(),temp.getHeight());
+		    
+		    Point point1_draw = new Point((LT.getX()+LT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width,
+		    		(LT.getY()+LT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+            Point point2_draw = new Point((RT.getX()+RT.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width,
+            		(RT.getY()+RT.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+            Point point3_draw = new Point((RB.getX()+RB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width, 
+            		(RB.getY()+RB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+            Point point4_draw = new Point((LB.getX()+LB.getLayoutParams().width/2f)/((int)imageView.getWidth()*1.0)*dst_width, 
+            		(LB.getY()+LB.getLayoutParams().height/2f)/((int)imageView.getHeight()*1.0)*dst_height);
+            
+            path.moveTo((float)point1_draw.x, (float)point1_draw.y);
+            path.lineTo((float)point2_draw.x, (float)point2_draw.y);
+            path.lineTo((float)point3_draw.x, (float)point3_draw.y);
+            path.lineTo((float)point4_draw.x, (float)point4_draw.y);
+            path.lineTo((float)point1_draw.x, (float)point1_draw.y);
+            
+            path.close();
+            canvas2.drawARGB(0, 0, 0, 0);
+            paint.setColor(Color.WHITE);
+            canvas2.drawPath(path, paint);
+            paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+            canvas2.drawBitmap(temp2, 0, 0, paint);
+            blackLayer.setImageBitmap(temp2);
+            // end of drawing part
 		}
 		
 		private void findCard() {
