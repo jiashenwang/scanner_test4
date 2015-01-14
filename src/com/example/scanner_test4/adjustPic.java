@@ -171,18 +171,6 @@ public class adjustPic extends Activity implements OnTouchListener{
 	private class ConfirmListerner implements OnClickListener{
 		@Override
 		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			
-			/*
-			new_leftTop = new Point((LT.getX()/(screenWidth*1.0)*dst_width)+LT.getLayoutParams().width/2f,
-					(LT.getY()/(screenHeight*1.0)*dst_height)+LT.getLayoutParams().height/2f);
-			new_leftBot = new Point((LB.getX()/(screenWidth*1.0)*dst_width)+LB.getLayoutParams().width/2f,
-					(LB.getY()/(screenHeight*1.0)*dst_height)+LB.getLayoutParams().height/2f);
-			new_rightTop = new Point((RT.getX()/(screenWidth*1.0)*dst_width)+RT.getLayoutParams().width/2f,
-					(RT.getY()/(screenHeight*1.0)*dst_height)+RT.getLayoutParams().height/2f);
-			new_rightBot = new Point((RB.getX()/(screenWidth*1.0)*dst_width)+RB.getLayoutParams().width/2f,
-					(RB.getY()/(screenHeight*1.0)*dst_height)+RB.getLayoutParams().height/2f);
-					*/
 			
 			new_leftTop = new Point(((LT.getX()+LT.getLayoutParams().width/2f)/(imageView.getWidth())*dst_width),
 					((LT.getY()+LT.getLayoutParams().height/2f)/(imageView.getHeight())*dst_height));
